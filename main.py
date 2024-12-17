@@ -7,7 +7,7 @@ if __name__ == "__main__":
     try:
         clients_folder = "C:/TOMOGRAFIA"
         output_file = "C:/Users/luan.faria/Desktop/cod_luan/cod/SIGMA/cod/codigo_banco_tomo/teste_2.xlsx"
-        selected_client_ids = [111]
+        selected_client_ids = [111,2,7,8]
 
         db_config = {
             "dbname": "postgis_34_sample",
@@ -30,13 +30,11 @@ if __name__ == "__main__":
             selected_client_ids=selected_client_ids
         )
         merged_data = merger.merge_clients_bd_agro_data(db_manager=db_manager)
-        print("Dados mesclados gerados com sucesso.")
+        print("Merge BD_AGRO - OK!.")
 
         # Carregar os dados do Excel e inserir no banco de dados
         df = pd.read_excel(output_file)
-        inserir_dados(df, "bd_tomografia", db_manager)
-
-        print("Dados inseridos com sucesso!")
+        inserir_dados(df, "bd_tomografia", db_manager)      
 
     except Exception as e:
         print(f"Erro: {e}")
