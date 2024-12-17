@@ -1,5 +1,6 @@
 import os
 import pandas as pd
+import numpy as np
 
 class CreateBdAgroMerge:
     """
@@ -38,7 +39,8 @@ class CreateBdAgroMerge:
 
             bd_agro['client_id'] = client_id
             bd_agro['client_name'] = client_name
-            bd_agro['tc_est_colheita'] = bd_agro['TC_EST']
+            bd_agro['tc_est_colheita'] = np.where(bd_agro['TCH_REAL'] > 0, bd_agro['TC_EST'], 0)
+
 
             merged_bd_agro = pd.concat([merged_bd_agro, bd_agro], ignore_index=True)
 
