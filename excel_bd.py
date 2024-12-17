@@ -89,7 +89,7 @@ class CreateBdAgroMerge:
         """
         Adiciona informações do grupo ao Excel baseado nos IDs dos clientes.
         """
-        conn = db_manager.connect()
+        conn = db_manager.get_connection()
         try:
             with conn.cursor() as cursor:
                 query = """
