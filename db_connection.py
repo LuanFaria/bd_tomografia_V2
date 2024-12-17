@@ -6,25 +6,30 @@ class DatabaseManager:
     Classe para gerenciar a conexão e operações no banco de dados PostgreSQL.
     """
 
-    def __init__(self, config):
-        """
-        Inicializa a classe DatabaseManager.
+    _connection = None  # Variável estática para armazenar a conexão única
 
-        Parameters:
-        - config (dict): Configuração do banco de dados (dbname, user, password, host, port).
-        """
+    def __init__(self, config):
         self.config = config
 
-    def connect(self):
+    def get_connection(self):
         """
-        Conecta ao banco de dados PostgreSQL.
+        Retorna uma conexão única ao banco de dados.
         """
-        try:
-            conn = psycopg2.connect(**self.config)
-            return conn
-        except Exception as e:
-            print(f"Erro ao conectar ao banco de dados: {e}")
-            raise
+        if DatabaseManager._connection is None or DatabaseManager._connection.closed:
+            try:
+                DatabaseManager._connection = psycopg2.connect(**self.config)
+            except Exception as e:
+                print(f"Erro ao conectar ao banco de dados: {e}")
+                raise
+        return DatabaseManager._connection
+
+    def close_connection(self):
+        """
+        Fecha a conexão com o banco de dados, se ela estiver aberta.
+        """
+        if DatabaseManager._connection and not DatabaseManager._connection.closed:
+            DatabaseManager._connection.close()
+            print("Conexão com o banco de dados fechada.")
 
     def delete_rows_by_client_ids(self, schema, table, client_ids):
         """
@@ -33,18 +38,14 @@ class DatabaseManager:
         Parameters:
         - schema (str): Schema do banco de dados.
         - table (str): Nome da tabela.
-        - client_ids (list): Lista de IDs de clientes a serem excluídos.
+        - client_ids (list): IDs dos clientes a serem excluídos.
         """
         query = f"DELETE FROM {schema}.{table} WHERE client_id = ANY(%s)"
         try:
-            conn = self.connect()
+            conn = self.get_connection()
             with conn.cursor() as cursor:
                 cursor.execute(query, (client_ids,))
                 print(f"{cursor.rowcount} linhas excluídas da tabela {table}.")
             conn.commit()
         except Exception as e:
             print(f"Erro ao excluir linhas: {e}")
-        finally:
-            conn.close()
-    
-   
